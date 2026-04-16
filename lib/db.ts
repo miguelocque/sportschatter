@@ -1,11 +1,11 @@
 // DATABASE CONNECTION CODE taken from Prof. Davoodi from discussion 9
 // when we went over MongoDB database connection
 
-import {Collection, Db, MongoClient} from "mongodb";
+import { Collection, Db, MongoClient } from "mongodb";
 
 const MONGO_URI = process.env.MONGO_URI as string;
 
-if(!MONGO_URI){
+if (!MONGO_URI) {
     throw new Error("Something is wrong with your key");
 }
 
@@ -13,8 +13,8 @@ const DB_NAME = "Cluster0";
 
 export const POSTS_COLLECTION = "posts-collection";
 
-let client: MongoClient | null=null;
-let db: Db | null=null;
+let client: MongoClient | null = null;
+let db: Db | null = null;
 
 async function connect(): Promise<Db> {
     // If `client` is not yet initialized, create a new MongoClient instance
