@@ -2,7 +2,7 @@ import type { MatchData, MatchEvent, MatchStatus } from "@/types";
 
 const API_BASE = "https://v3.football.api-sports.io";
 
-//  API-Football raw types 
+// ─── API-Football raw types ───────────────────────────────────────────────────
 
 interface RawEvent {
     time: { elapsed: number };
@@ -12,7 +12,7 @@ interface RawEvent {
     detail: string;
 }
 
-//  Helpers 
+// ─── Helpers ──────────────────────────────────────────────────────────────────
 
 function mapStatus(short: string): MatchStatus {
     const live = ["1H", "HT", "2H", "ET", "BT", "P", "INT", "LIVE"];
@@ -39,7 +39,7 @@ function apiHeaders() {
     };
 }
 
-//  getMatch 
+// ─── getMatch ─────────────────────────────────────────────────────────────────
 
 export async function getMatch(id: string): Promise<MatchData | null> {
     const headers = apiHeaders();

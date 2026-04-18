@@ -166,10 +166,12 @@ function MatchMeta({ match }: { match: MatchData }) {
 export default async function MatchPage({
     params,
 }: {
-    params: { matchId: string };
+    params: Promise<{ matchId: string }>;
 }) {
-    const match = await getMatch(params.matchId);
-    if (!match) notFound();
+    const { matchId } = await params;
+    const result = await getMatch(matchId);
+    if (!result) notFound();
+    const match = result!;
 
     return (
         <main className="min-h-screen bg-[#0d0f16] text-white">
