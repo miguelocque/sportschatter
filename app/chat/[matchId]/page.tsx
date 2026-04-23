@@ -1,5 +1,5 @@
 // Chat page for a specific match: displays the chat forum for that game
-import Chat from '../../../components/Chat';
+import Chat from '../../components/Chat';
 
 interface Props {
   params: Promise<{ matchId: string }>;
