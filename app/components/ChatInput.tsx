@@ -6,6 +6,19 @@ import styled from 'styled-components';
 // Random username is generated when posted
 // Sarah
 
+interface Message {
+  _id: string;
+  matchId: string;
+  author: string;
+  content: string;
+  createdAt: string;
+}
+
+interface ChatInputProps {
+  matchId: string;
+  onNewMessage: (msg: Message) => void;
+}
+
 const InputWrapper = styled.div`
   border-top: 1px solid #2a2a2a;
   padding: 16px 20px;
@@ -76,7 +89,7 @@ const ErrorText = styled.p`
   color: #ff4d4d;
 `;
 
-const generateUsername = () => {
+const generateUsername = (): string => {
   const adjectives = ['Quick', 'Fierce', 'Silent', 'Golden', 'Iron', 'Bold', 'Swift', 'Crafty'];
   const nouns = ['Striker', 'Keeper', 'Winger', 'Libero', 'Anchor', 'Finisher', 'Dribbler'];
   const number = Math.floor(Math.random() * 99) + 1;
@@ -85,11 +98,11 @@ const generateUsername = () => {
   return `${adj}${noun}${number}`;
 };
 
-export default function ChatInput({ matchId, onNewMessage }) {
-  const [author, setAuthor] = useState('');
-  const [content, setContent] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
+export default function ChatInput({ matchId, onNewMessage }: ChatInputProps) {
+  const [author, setAuthor] = useState<string>('');
+  const [content, setContent] = useState<string>('');
+  const [loading, setLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string>('');
 
   useEffect(() => {
     setAuthor(generateUsername());
@@ -112,12 +125,12 @@ export default function ChatInput({ matchId, onNewMessage }) {
         const errorData = await res.json();
         throw new Error(errorData.error || `Server error: ${res.status}`);
       }
-      const newMsg = await res.json();
+      const newMsg: Message = await res.json();
       onNewMessage(newMsg);
       setContent('');
       setAuthor(generateUsername());
     } catch (err) {
-      setError(err.message);
+      setError((err as Error).message);
     } finally {
       setLoading(false);
     }

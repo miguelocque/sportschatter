@@ -4,8 +4,8 @@ import getCollection from '../../../../lib/db';
 
 const CHAT_COLLECTION = "chat-messages";
 
-export async function GET(req: NextRequest, { params }: { params: { matchId: string } }) {
-  const { matchId } = params;
+export async function GET(req: NextRequest, { params }: { params: Promise<{ matchId: string }> }) {
+  const { matchId } = await params;
   const collection = await getCollection(CHAT_COLLECTION);
 
   const messages = await collection
@@ -16,8 +16,8 @@ export async function GET(req: NextRequest, { params }: { params: { matchId: str
   return NextResponse.json(messages);
 }
 
-export async function POST(req: NextRequest, { params }: { params: { matchId: string } }) {
-  const { matchId } = params;
+export async function POST(req: NextRequest, { params }: { params: Promise<{ matchId: string }> }) {
+  const { matchId } = await params;
   const { author, content } = await req.json();
 
   if (!author || !content) {
