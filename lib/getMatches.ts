@@ -1,6 +1,22 @@
+// this file allows us to get multiple matches instead of just one match
 import type { GameData } from "@/types";
 
 const API_BASE = "https://v3.football.api-sports.io";
+
+// these constants will allow us to filter by the major leagues when we have a JSON response that goes over
+// the threshold
+const FEATURED_LEAGUES = new Set([
+    39,   // Premier League
+    140,  // La Liga
+    135,  // Serie A
+    78,   // Bundesliga
+    61,   // Ligue 1
+    2,    // Champions League
+    3,    // Europa League
+    848,  // Conference League
+]);
+
+const FIXTURE_THRESHOLD = 500;
 
 // ** Helper Methods, written by Miguel Ocque **
 
@@ -35,8 +51,8 @@ function mapStatus(short: string): GameData["status"] {
 }
 
 // a function that allows us to make an API call to obtain multiple matches instead of just one.
-// ** written by Miguel Ocque, much of this is taken from Oscar Fang's file "getMatch.ts"
-// that fetches a single match **
+// ** written by Miguel Ocque, some of this (some helper methods) is taken from Oscar Fang's file
+// "getMatch.ts" that fetches a single match **
 
 export async function getMatches(): Promise<GameData[]> {
     const headers = apiHeaders();
@@ -45,14 +61,23 @@ export async function getMatches(): Promise<GameData[]> {
     // API call
     const res = await fetch(`${API_BASE}/fixtures?date=${today}`, {
         headers,
-        next: { revalidate: 30 }, // refresh every 30s for live scores
+        next: { revalidate: 30 }, // refresh every 30s for live scores, implements ISR
     });
 
-    if (!res.ok) return [];
-
+    // we get the data as JSON
     const data = await res.json();
-    const fixtures = data.response ?? [];
+    const all = data.response ?? [];
 
+    // then we determine whether the total amount of matches returned is greater than 500
+    // which is likely indicative of a busy fixture day, thus we only show matches for the
+    // mainstream leagues, otherwise we return all the fixtures
+    const fixtures = all.length > FIXTURE_THRESHOLD
+        ? all.filter((f: { league: { id: number } }) => FEATURED_LEAGUES.has(f.league.id))
+        : all;
+
+
+    // here we map the JSON response to the appropriate types to match the GameData
+    // type from "types.ts"
     return fixtures.map((f: {
         fixture: {
             id: number;
