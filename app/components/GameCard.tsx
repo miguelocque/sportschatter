@@ -114,7 +114,7 @@ export default function GameCard({ game }: { game: GameData }) {
                     { team: game.awayTeam, isWinner: awayWins },
                     { team: game.homeTeam, isWinner: homeWins },
                 ].map(({ team, isWinner }) => (
-                    <div key={team.abbreviation} className="flex items-center gap-3">
+                    <div key={team.name} className="flex items-center gap-3">
                         <TeamLogo
                             name={team.name}
                             abbreviation={team.abbreviation}
