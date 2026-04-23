@@ -9,7 +9,7 @@ if (!MONGO_URI) {
     throw new Error("Something is wrong with your key");
 }
 
-const DB_NAME = "Cluster0";
+const DB_NAME = "test1";
 
 export const POSTS_COLLECTION = "posts-collection";
 
