@@ -6,6 +6,18 @@ import ChatInput from './ChatInput';
 // Chat Component to display all forum posts for a specific match
 // Sarah
 
+interface Message {
+  _id: string;
+  matchId: string;
+  author: string;
+  content: string;
+  createdAt: string;
+}
+
+interface ChatProps {
+  matchId: string;
+}
+
 const Wrapper = styled.div`
   display: flex;
   flex-direction: column;
@@ -93,11 +105,6 @@ const EmptyState = styled.div`
   gap: 8px;
 `;
 
-const EmptyIcon = styled.div`
-  font-size: 28px;
-  opacity: 0.3;
-`;
-
 const EmptyText = styled.p`
   margin: 0;
   font-size: 13px;
@@ -112,8 +119,8 @@ const LoadingText = styled.p`
 `;
 
 // matchId used to fetch and post messages for the correct game
-export default function Chat({ matchId }) {
-  const [messages, setMessages] = useState([]);
+export default function Chat({ matchId }: ChatProps) {
+  const [messages, setMessages] = useState<Message[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -131,11 +138,11 @@ export default function Chat({ matchId }) {
     fetchMessages();
   }, [matchId]);
 
-  const handleNewMessage = (msg) => {
+  const handleNewMessage = (msg: Message) => {
     setMessages((prev) => [...prev, msg]);
   };
 
-  const formatTime = (date) => {
+  const formatTime = (date: string) => {
     return new Date(date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   };
 
@@ -150,7 +157,6 @@ export default function Chat({ matchId }) {
           <LoadingText>Loading...</LoadingText>
         ) : messages.length === 0 ? (
           <EmptyState>
-            <EmptyIcon>💬</EmptyIcon>
             <EmptyText>No messages yet — start the conversation</EmptyText>
           </EmptyState>
         ) : (

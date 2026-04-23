@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import { getMatch } from "@/lib/getMatch";
 import type { MatchData, MatchEvent } from "@/types";
+import Chat from '../../components/Chat';
 
 // ─── Sub-components ───────────────────────────────────────────────────────────
 
@@ -175,11 +176,21 @@ export default async function MatchPage({
 
     return (
         <main className="min-h-screen bg-[#0d0f16] text-white">
-            <div className="max-w-lg mx-auto px-4 py-6 flex flex-col gap-4">
-                <MatchMeta match={match} />
-                <ScoreHero match={match} />
-                <HalftimeBreakdown match={match} />
-                <EventFeed events={match.events} />
+            <div className="max-w-6xl mx-auto px-4 py-6 flex gap-4 items-start">
+
+                {/* Match details on the left of the screen */}
+                <div className="flex flex-col gap-4 w-full max-w-lg shrink-0">
+                    <MatchMeta match={match} />
+                    <ScoreHero match={match} />
+                    <HalftimeBreakdown match={match} />
+                    <EventFeed events={match.events} />
+                </div>
+
+                {/* Chat component on the right which uses matchId from the URL so it's always match-specific */}
+                <div className="flex-1 min-w-0 sticky top-6 h-[calc(100vh-3rem)] border border-white/[0.07] rounded-2xl overflow-hidden">
+                    <Chat matchId={matchId} />
+                </div>
+
             </div>
         </main>
     );
