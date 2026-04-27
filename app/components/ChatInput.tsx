@@ -19,6 +19,7 @@ interface ChatInputProps {
   onNewMessage: (msg: Message) => void;
 }
 
+// Styled components for chat input
 const InputWrapper = styled.div`
   border-top: 1px solid #2a2a2a;
   padding: 16px 20px;
@@ -89,6 +90,7 @@ const ErrorText = styled.p`
   color: #ff4d4d;
 `;
 
+// Generates a random soccer related username for each post
 const generateUsername = (): string => {
   const adjectives = ['Quick', 'Fierce', 'Silent', 'Golden', 'Iron', 'Bold', 'Swift', 'Crafty'];
   const nouns = ['Striker', 'Keeper', 'Winger', 'Libero', 'Anchor', 'Finisher', 'Dribbler'];
@@ -98,6 +100,7 @@ const generateUsername = (): string => {
   return `${adj}${noun}${number}`;
 };
 
+// UseStates to validate and handle input
 export default function ChatInput({ matchId, onNewMessage }: ChatInputProps) {
   const [author, setAuthor] = useState<string>('');
   const [content, setContent] = useState<string>('');
@@ -108,6 +111,7 @@ export default function ChatInput({ matchId, onNewMessage }: ChatInputProps) {
     setAuthor(generateUsername());
   }, []);
 
+  // handleSubmit function to validate input and post message with author and content
   const handleSubmit = async () => {
     if (!content.trim()) {
       setError('Please write something before posting.');
