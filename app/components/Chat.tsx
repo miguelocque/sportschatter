@@ -6,6 +6,7 @@ import ChatInput from './ChatInput';
 // Chat Component to display all forum posts for a specific match
 // Sarah
 
+// Message/post coming from MongoDB
 interface Message {
   _id: string;
   matchId: string;
@@ -18,6 +19,7 @@ interface ChatProps {
   matchId: string;
 }
 
+//Styled components for chat page
 const Wrapper = styled.div`
   display: flex;
   flex-direction: column;
@@ -120,7 +122,9 @@ const LoadingText = styled.p`
 
 // matchId used to fetch and post messages for the correct game
 export default function Chat({ matchId }: ChatProps) {
+  // UseState to hold the messages to be displayed
   const [messages, setMessages] = useState<Message[]>([]);
+  // UseState for loading status while fetching
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -142,6 +146,7 @@ export default function Chat({ matchId }: ChatProps) {
     setMessages((prev) => [...prev, msg]);
   };
 
+  // To add a timestamp to each message
   const formatTime = (date: string) => {
     return new Date(date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   };
