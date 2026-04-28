@@ -1,4 +1,4 @@
-"use client";
+"use client"; // using client side rendering (CSR) for the styled component homepage
 
 import styled from "styled-components";
 import GameCard from "@/app/components/GameCard";
@@ -40,15 +40,17 @@ const SectionHeading = styled.h2<{ $live?: boolean }>`
 
 const Grid = styled.div`
     display: grid;
-    grid-template-columns: 1fr;
     gap: 12px;
 
-    @media (min-width: 640px) {
+    /* default the view to be three columns of games, and dynamically change to either 2 or 1 depending on max width */
+    grid-template-columns: repeat(3, 1fr);
+
+    @media (max-width: 1023px) {
         grid-template-columns: repeat(2, 1fr);
     }
 
-    @media (min-width: 1024px) {
-        grid-template-columns: repeat(3, 1fr);
+    @media (max-width: 639px) {
+        grid-template-columns: repeat(1, 1fr);
     }
 `;
 
@@ -69,6 +71,7 @@ export default function HomeView({ games }: { games: GameData[] }) {
                     <Section>
                         <SectionHeading $live>LIVE NOW</SectionHeading>
                         <Grid>
+                            {/*for the games in the array, we map over each one assigning them to the game card components*/}
                             {liveGames.map((game) => (
                                 // we use the GameCard component built by Oscar here to display the game
                                 <GameCard key={game.id} game={game} />
