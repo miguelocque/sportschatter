@@ -5,12 +5,14 @@ import type { GameData } from "@/types";
 
 //  Helpers 
 
+// converts a period number into a sport-specific label (e.g. Q3 for NBA, 1st/2nd for soccer)
 function getPeriodLabel(sport: GameData["sport"], period: number): string {
     if (sport === "nba") return `Q${period}`;
     if (sport === "soccer") return period === 1 ? "1st" : "2nd";
-    return `P${period}`;
+    return `P${period}`; // fallback for any other sport
 }
 
+// formats a scheduled time as "Today · 7:30 PM" or "Apr 28 · 7:30 PM"
 function formatScheduledTime(isoString: string): string {
     const date = new Date(isoString);
     const isToday = date.toDateString() === new Date().toDateString();
@@ -43,6 +45,7 @@ function TeamLogo({
             />
         );
     }
+    // no logo available, fall back to a circle with the team abbreviation
     return (
         <div
             className="rounded-full bg-white/10 flex items-center justify-center text-[10px] font-bold text-white/60 flex-shrink-0 tracking-wide"
@@ -59,16 +62,19 @@ function TeamLogo({
 export default function GameCard({ game }: { game: GameData }) {
     const router = useRouter();
 
+    // only mark a winner if the game is over - no winner during live or upcoming
     const homeWins =
         game.status === "final" && game.homeTeam.score > game.awayTeam.score;
     const awayWins =
         game.status === "final" && game.awayTeam.score > game.homeTeam.score;
-    const showScores = game.status !== "upcoming";
+    const showScores = game.status !== "upcoming"; // hide scores before the game starts
 
     return (
+        // using article + role="button" so it's both semantic and keyboard accessible
         <article
             onClick={() => router.push(`/matches/${game.id}`)}
             onKeyDown={(e) => {
+                // let keyboard users navigate with Enter or Space, just like a real button
                 if (e.key === "Enter" || e.key === " ")
                     router.push(`/matches/${game.id}`);
             }}
@@ -77,7 +83,7 @@ export default function GameCard({ game }: { game: GameData }) {
             aria-label={`${game.awayTeam.name} vs ${game.homeTeam.name} — ${game.status}`}
             className="bg-[#13151c] border border-white/[0.07] rounded-2xl px-[18px] py-[14px] cursor-pointer transition-colors duration-150 hover:bg-[#191c26] hover:border-white/[0.13] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/30 select-none"
         >
-            {/*  Header  */}
+            {/*  Header - status on the left, sport label on the right  */}
             <div className="flex items-center justify-between mb-[14px]">
                 {game.status === "live" && (
                     <div className="flex items-center gap-1.5">
@@ -85,6 +91,7 @@ export default function GameCard({ game }: { game: GameData }) {
                         <span className="text-[11px] font-bold tracking-widest uppercase text-green-500">
                             Live
                         </span>
+                        {/* show current period + clock if we have them */}
                         {game.period && (
                             <span className="text-[11px] text-white/40">
                                 {getPeriodLabel(game.sport, game.period)}
@@ -108,7 +115,7 @@ export default function GameCard({ game }: { game: GameData }) {
                 </span>
             </div>
 
-            {/*  Teams  */}
+            {/*  Teams - away first (top), home second (bottom), standard sports convention  */}
             <div className="flex flex-col gap-2.5">
                 {[
                     { team: game.awayTeam, isWinner: awayWins },
@@ -120,6 +127,7 @@ export default function GameCard({ game }: { game: GameData }) {
                             abbreviation={team.abbreviation}
                             logoUrl={team.logoUrl}
                         />
+                        {/* winner gets bright white + semibold, loser gets dimmed */}
                         <span
                             className={`flex-1 text-sm truncate ${isWinner ? "font-semibold text-white" : "font-normal text-white/50"
                                 }`}
@@ -138,10 +146,11 @@ export default function GameCard({ game }: { game: GameData }) {
                 ))}
             </div>
 
-            {/*  Footer (upcoming only)  */}
+            {/*  Footer - only shown for upcoming games since live/final don't need a scheduled time  */}
             {game.status === "upcoming" && game.scheduledAt && (
                 <div className="mt-3 pt-2.5 border-t border-white/[0.06] text-xs text-white/35 leading-none">
                     {formatScheduledTime(game.scheduledAt)}
+                    {/* venue is optional so only render it if it exists */}
                     {game.venue && (
                         <span className="text-white/20"> · {game.venue}</span>
                     )}

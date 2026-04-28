@@ -5,8 +5,10 @@ import Chat from '../../components/Chat';
 
 // ─── Sub-components ───────────────────────────────────────────────────────────
 
+// shows a badge depending on match status (live, finished, or upcoming)
 function StatusBadge({ match }: { match: MatchData }) {
     if (match.status === "live") {
+        // green pulsing dot + elapsed time for live matches
         return (
             <div className="flex items-center gap-2">
                 <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
@@ -26,6 +28,7 @@ function StatusBadge({ match }: { match: MatchData }) {
             </span>
         );
     }
+    // if not live or final, it must be upcoming so just show the date/time
     return (
         <span className="text-sm font-semibold tracking-widest uppercase text-white/40">
             {new Date(match.scheduledAt).toLocaleDateString([], {
@@ -39,6 +42,7 @@ function StatusBadge({ match }: { match: MatchData }) {
     );
 }
 
+// renders a team logo image, falls back to a placeholder div with the team's 3-letter abbreviation
 function TeamLogo({ logoUrl, name, size = 56 }: { logoUrl?: string; name: string; size?: number }) {
     if (logoUrl) {
         return <img src={logoUrl} alt={name} width={size} height={size} className="object-contain" />;
@@ -53,23 +57,29 @@ function TeamLogo({ logoUrl, name, size = 56 }: { logoUrl?: string; name: string
     );
 }
 
+// the main score display - away team on left, home on right (standard convention)
 function ScoreHero({ match }: { match: MatchData }) {
+    // don't show score if the match hasn't started yet
     const showScore = match.status !== "upcoming";
     const homeWins = match.homeTeam.winner;
     const awayWins = match.awayTeam.winner;
 
     return (
         <div className="flex items-center justify-between gap-4 py-8">
+            {/* away team */}
             <div className="flex flex-col items-center gap-3 flex-1">
                 <TeamLogo logoUrl={match.awayTeam.logoUrl} name={match.awayTeam.name} />
+                {/* dim the loser's name */}
                 <span className={`text-center text-sm font-medium leading-tight ${awayWins ? "text-white" : "text-white/60"}`}>
                     {match.awayTeam.name}
                 </span>
             </div>
 
+            {/* score in the middle */}
             <div className="flex flex-col items-center gap-2 shrink-0">
                 {showScore ? (
                     <div className="flex items-center gap-3">
+                        {/* loser's score is dimmed, winner's is full white */}
                         <span className={`text-5xl font-bold tabular-nums ${awayWins ? "text-white" : "text-white/40"}`}>
                             {match.awayTeam.score}
                         </span>
@@ -79,11 +89,13 @@ function ScoreHero({ match }: { match: MatchData }) {
                         </span>
                     </div>
                 ) : (
+                    // no score yet, just show "vs"
                     <span className="text-3xl font-light text-white/30">vs</span>
                 )}
                 <StatusBadge match={match} />
             </div>
 
+            {/* home team */}
             <div className="flex flex-col items-center gap-3 flex-1">
                 <TeamLogo logoUrl={match.homeTeam.logoUrl} name={match.homeTeam.name} />
                 <span className={`text-center text-sm font-medium leading-tight ${homeWins ? "text-white" : "text-white/60"}`}>
@@ -94,10 +106,11 @@ function ScoreHero({ match }: { match: MatchData }) {
     );
 }
 
+// halftime and full time score breakdown - only renders if halftime data exists
 function HalftimeBreakdown({ match }: { match: MatchData }) {
     const ht = match.score.halftime;
     const ft = match.score.fulltime;
-    if (ht.home === null && ht.away === null) return null;
+    if (ht.home === null && ht.away === null) return null; // nothing to show yet
 
     return (
         <div className="border border-white/[0.07] rounded-2xl p-5">
@@ -107,7 +120,7 @@ function HalftimeBreakdown({ match }: { match: MatchData }) {
             <div className="grid grid-cols-3 text-sm text-center gap-y-3">
                 <span className="text-white/30">Halftime</span>
                 <span className="font-bold text-white tabular-nums">{ht.away ?? 0} – {ht.home ?? 0}</span>
-                <span />
+                <span /> {/* empty cell to fill the third column */}
                 {ft.home !== null && (
                     <>
                         <span className="text-white/30">Full Time</span>
@@ -120,6 +133,7 @@ function HalftimeBreakdown({ match }: { match: MatchData }) {
     );
 }
 
+// maps event types to emojis for the event feed
 const EVENT_ICON: Record<MatchEvent["type"], string> = {
     goal: "⚽",
     yellow_card: "🟨",
@@ -127,6 +141,7 @@ const EVENT_ICON: Record<MatchEvent["type"], string> = {
     substitution: "↕",
 };
 
+// chronological list of match events (goals, cards, subs)
 function EventFeed({ events }: { events: MatchEvent[] }) {
     if (events.length === 0) return null;
 
@@ -140,6 +155,7 @@ function EventFeed({ events }: { events: MatchEvent[] }) {
                     <div key={i} className="flex items-center gap-3">
                         <span className="text-xs text-white/30 tabular-nums w-8 shrink-0">{e.minute}&apos;</span>
                         <span className="text-sm shrink-0">{EVENT_ICON[e.type]}</span>
+                        {/* home team events align right, away team events align left */}
                         <span className={`flex-1 text-sm text-white/70 ${e.team === "home" ? "text-right" : "text-left"}`}>
                             {e.playerName}
                         </span>
@@ -150,12 +166,13 @@ function EventFeed({ events }: { events: MatchEvent[] }) {
     );
 }
 
+// small footer-ish bar showing league name, round, and venue
 function MatchMeta({ match }: { match: MatchData }) {
     return (
         <div className="flex items-center justify-between text-xs text-white/30">
             <span>
                 {match.league.name}
-                {match.league.round && ` · ${match.league.round}`}
+                {match.league.round && ` · ${match.league.round}`} {/* only show round if it exists */}
             </span>
             <span>{match.venue.name}, {match.venue.city}</span>
         </div>
@@ -164,6 +181,7 @@ function MatchMeta({ match }: { match: MatchData }) {
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
+// server component - fetches match data by ID from the URL params
 export default async function MatchPage({
     params,
 }: {
@@ -171,14 +189,14 @@ export default async function MatchPage({
 }) {
     const { matchId } = await params;
     const result = await getMatch(matchId);
-    if (!result) notFound();
+    if (!result) notFound(); // 404 if the match doesn't exist
     const match = result!;
 
     return (
         <main className="min-h-screen bg-[#0d0f16] text-white">
             <div className="max-w-6xl mx-auto px-4 py-6 flex gap-4 items-start">
 
-                {/* Match details on the left of the screen */}
+                {/* match details panel - fixed width on the left */}
                 <div className="flex flex-col gap-4 w-full max-w-lg shrink-0">
                     <MatchMeta match={match} />
                     <ScoreHero match={match} />
@@ -186,7 +204,8 @@ export default async function MatchPage({
                     <EventFeed events={match.events} />
                 </div>
 
-                {/* Chat component on the right which uses matchId from the URL so it's always match-specific */}
+                {/* chat panel on the right - sticky so it stays in view while scrolling */}
+                {/* passes matchId so the chat is scoped to this specific match */}
                 <div className="flex-1 min-w-0 sticky top-6 h-[calc(100vh-3rem)] border border-white/[0.07] rounded-2xl overflow-hidden">
                     <Chat matchId={matchId} />
                 </div>
